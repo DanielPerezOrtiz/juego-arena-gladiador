@@ -1,5 +1,5 @@
 import random,json
-class personaje:
+class Personaje:
     def __init__(self, nombre, vida, defensa, ataque, suerte=0, pociones=0, dificultad= 1):
         self.nombre = nombre
         self.vida_max=vida
@@ -60,7 +60,7 @@ def pedir_datos(mensaje,minimo,maximo):
                 print (f"el valor debe estar entre {minimo} y {maximo}")
         else:
             print (f"el valor debe ser numerico nada de letras o signos")
-def comabte (gladiador,enemigo):
+def combate (gladiador,enemigo):
     while gladiador.esta_vivo() and enemigo.esta_vivo():
         print ("1. Atacar | 2. Sanarse ")
         opcion = pedir_datos('Que quiere hacer',1,2)
@@ -74,7 +74,7 @@ def comabte (gladiador,enemigo):
                     enemigo.recibir_critico(daño)
                     print (f'{gladiador.nombre} ha realizado un ataque critico, la vida del enemigo es de {enemigo.vida_actual}') 
                 else:
-                    enemigo.recibir_daño(random.randint (15,gladiador.ataque))
+                    enemigo.recibir_daño(daño)
                     print (f'{gladiador.nombre} ha realizado un ataque, la vida del enemigo es {enemigo.vida_actual}')
         elif opcion == 2 :
             if gladiador.pociones >0 :
@@ -107,29 +107,29 @@ def guardar_datos (gladiador):
     }  
     with open ('personajes.json','w') as f:
         json.dump(personajes,f,indent=4)
-        print(f"personaje{gladiador.nombre} guardado!!!")  
+        print(f"personaje {gladiador.nombre} guardado!!!")  
 def cargar_personajes():     
     try:
         with open('personajes.json','r') as f:
             return json.load(f)
     except FileNotFoundError:
-        return{}           
+        return {}           
 def nueva_partida():
           #gladiador
     nombre = input('su nombre es: ')
     vida = pedir_datos('Su vida es de (1/150) : ', 1, 150)
     ataque = pedir_datos('Con cuantos puntos de ataque cuenta usted (15/50): ',15,50)
-    defensa = pedir_datos('Su defens es de (1/10) :',1,10)
+    defensa = pedir_datos('Su defensa es de (1/10) :',1,10)
     suerte = pedir_datos('Su suerte es de (1/10) : ',1,10)
     pociones = pedir_datos('Trae consigo cuantas pociones (0/5): ',0,5)                      
-    gladiador = personaje(nombre,vida,defensa,ataque,suerte,pociones)                    
+    gladiador = Personaje(nombre,vida,defensa,ataque,suerte,pociones)                    
     #elegir dificultad 
-    print('\nElija la difiultad:')
+    print('\nElija la dificultad:')
     print('1. facil')
     print ('2. dificil')
     print ('3. imposible')
         #sistema del enemigo
-    dificultad = pedir_datos('elja su dificultad: ',1,3)
+    dificultad = pedir_datos('Elija su dificultad: ',1,3)
     if dificultad==1:
             nombre_enemy = 'Duende'
             vida_enemy= 80
@@ -154,28 +154,28 @@ def nueva_partida():
             suerte_enemy = 10
             pociones_enemy = 5
             dificultad = 3
-    enemigo = personaje(nombre_enemy,vida_enemy,defensa_enemy,ataque_enemy,suerte_enemy,pociones_enemy, dificultad)
+    enemigo = Personaje(nombre_enemy,vida_enemy,defensa_enemy,ataque_enemy,suerte_enemy,pociones_enemy, dificultad)
     print (f"HA aparecido un {enemigo.nombre} ")
     gladiador.calcular_defensa()
     enemigo.calcular_defensa()
         #sistema de combate
     victoria = False    
-    comabte(gladiador,enemigo)    
+    combate(gladiador,enemigo)    
     if not gladiador.esta_vivo() : 
                     print (f"{gladiador.nombre} esta muerto, game over")
     elif not enemigo.esta_vivo():
                     print (f"\n !HAS DERROTADO A {enemigo.nombre}")
                     victoria = True
     if gladiador.esta_vivo():
-        opcion = input("guardar personaje(s/n")
+        opcion = input("guardar personaje (s/n): ")
         if opcion.lower()== "s":
             guardar_datos(gladiador)
                    
-    with open ('C:/Users/dp051/OneDrive/Desktop/Arena.txt','a') as archivo:
+    with open ('Arena.txt','a') as archivo:
         if victoria == True:
-            archivo.write (f"\n El gladiador entra en la arenay vencio")
+            archivo.write (f"\n El gladiador entra en la arena y venció")
         else:
-            archivo.write(f"\n El gladiador cayo en la arena")                                
+            archivo.write(f"\n El gladiador cayó en la arena")                                
 def jugar():            
         while True:
             print(f"\n =================")
@@ -186,22 +186,22 @@ def jugar():
             print('3. Salir del juego')
             opcion_menu= pedir_datos('',1,3)
             if opcion_menu == 1:
-                print (f"\n Bienbenido a nuestro coliseo")
+                print (f"\n Bienvenido a nuestro coliseo")
                 nueva_partida()
             elif opcion_menu == 2:
-                personaje = cargar_personajes()
-                if not personaje:
+                personajes_dict = cargar_personajes()
+                if not personajes_dict:
                     print('no hay partidas guardadas')
                 else:
                     print('\n ----Personajes guardados -----')
-                    lista = list(personaje.keys())
+                    lista = list(personajes_dict.keys())
                     for i, nombre in enumerate(lista,1):
-                        datos = personaje[nombre]
+                        datos = personajes_dict[nombre]
                         print(f"{i}. {nombre}(vida:{datos['vida_actual']}/{datos['vida_max']})")
-                    seleccion = pedir_datos("\nSeleccione un persoanje (0 para volver)",0, len(lista))
+                    seleccion = pedir_datos("\nSeleccione un personaje (0 para volver)",0, len(lista))
                     if seleccion > 0:
-                        datos = personaje[lista[seleccion-1]]
-                        gladiador = personaje(
+                        datos = personajes_dict[lista[seleccion-1]]
+                        gladiador = Personaje(
                             lista[seleccion-1],
                             datos['vida_max'],
                             datos['defensa'],
@@ -240,12 +240,12 @@ def jugar():
                             suerte_enemy = 10
                             pociones_enemy = 5
                             dificultad = 3
-                        enemigo = personaje(nombre_enemy,vida_enemy,defensa_enemy,ataque_enemy,suerte_enemy,pociones_enemy, dificultad)
+                        enemigo = Personaje(nombre_enemy,vida_enemy,defensa_enemy,ataque_enemy,suerte_enemy,pociones_enemy, dificultad)
                         print (f"HA aparecido un {enemigo.nombre} ")
                         gladiador.calcular_defensa()
                         enemigo.calcular_defensa()
                         #sitema de combate
-                        comabte(gladiador,enemigo)
+                        combate(gladiador,enemigo)
                         victoria = False
                         if not gladiador.esta_vivo() : 
                                     print (f"{gladiador.nombre} esta muerto, game over")
@@ -253,12 +253,12 @@ def jugar():
                                     print (f"\n !HAS DERROTADO A {enemigo.nombre}")
                                     victoria = True
                         if gladiador.esta_vivo():
-                          opcion = input("guardar personaje(s/n")
+                          opcion = input("guardar personaje(s/n): ")
                           if opcion.lower()== "s":
                             guardar_datos(gladiador) 
-                        with open ('C:/Users/dp051/OneDrive/Desktop/Arena.txt','a') as archivo:
+                        with open ('Arena.txt','a') as archivo:
                          if victoria == True:
-                            archivo.write (f"\n El gladiador entra en la arenay vencio")
+                            archivo.write (f"\n El gladiador entra en la arena y vencio")
                          else:
                             archivo.write(f"\n El gladiador cayo en la arena")
             elif opcion_menu == 3 :
